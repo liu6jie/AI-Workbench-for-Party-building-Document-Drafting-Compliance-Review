@@ -1,0 +1,26 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.config import settings
+from app.db import Base, engine
+from app.routers import materials
+
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title="AI 党建材料智能起草与合规检查工作台")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):\d+",
+    allow_origins=[settings.frontend_origin] if settings.frontend_origin else [],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(materials.router)
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
