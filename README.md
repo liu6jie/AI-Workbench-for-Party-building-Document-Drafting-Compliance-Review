@@ -415,3 +415,4 @@ export const FORM_SCHEMAS = {
 const SEVERITY_COLOR = { fatal: "red", warning: "gold", good: "green" };
 // 用 Ant Design 的 <Tag color={...}> 和 <List> 渲染 issues 数组即可
 ```
+##前端效果展示
