@@ -5,7 +5,7 @@
 
 ---
 
-## 阶段 0：环境准备（30 分钟）
+## 阶段 0：环境准备
 
 1. 安装工具：Node.js ≥18、Python ≥3.10、Git。
 2. 申请 DeepSeek API Key（https://platform.deepseek.com），记下 `DEEPSEEK_API_KEY`。
@@ -27,7 +27,7 @@ DEEPSEEK_BASE_URL=https://api.deepseek.com
 
 ---
 
-## 阶段 1：后端骨架 + 打通一条"最小闭环"（先做"年度工作总结"一种类型）
+## 阶段 1：后端骨架 
 
 ### 1.1 初始化 FastAPI 项目
 
@@ -294,7 +294,7 @@ def llm_check(content: str) -> list:
 
 ---
 
-## 阶段 5：RAG 知识库（先做最小可用版本，不用一开始就四层都上）
+## 阶段 5：RAG 知识库
 
 ### 5.1 准备语料（`data/knowledge/` 下按层级建文件夹）
 
@@ -335,9 +335,6 @@ def retrieve(query: str, k: int = 3, layer_filter: str = None) -> str:
     results = vectordb.similarity_search(query, k=k)
     return "\n---\n".join(r.page_content for r in results)
 ```
-
-把 `generator.py` 里硬编码的 `rag_context="（暂无检索素材）"` 换成真实检索结果，并在返回材料里对引用部分做来源标注（可以简单做：检索到的 chunk 附带来源文件名，生成时要求模型在引用处标注"（依据：xxx）"）。
-
 ---
 
 ## 阶段 6：横向扩展到五类材料
