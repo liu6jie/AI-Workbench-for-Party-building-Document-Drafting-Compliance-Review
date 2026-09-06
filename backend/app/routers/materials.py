@@ -22,7 +22,7 @@ router = APIRouter(prefix="/api/materials", tags=["materials"])
 @router.post("/generate", response_model=GenerateResponse)
 def generate(payload: GenerateRequest, session: Session = Depends(get_session)):
     form_values = payload.model_dump(exclude={"material_type"})
-    content = generate_content(payload.material_type, form_values)
+    content = generate_content(payload.material_type, form_values, session)
 
     material = Material(
         id=uuid.uuid4().hex,
@@ -40,8 +40,8 @@ def generate(payload: GenerateRequest, session: Session = Depends(get_session)):
 
 
 @router.post("/check", response_model=ComplianceReportOut)
-def check(payload: CheckRequest):
-    report = run_check(payload.material_type, payload.content)
+def check(payload: CheckRequest, session: Session = Depends(get_session)):
+    report = run_check(payload.material_type, payload.content, session)
     return ComplianceReportOut(**report)
 
 

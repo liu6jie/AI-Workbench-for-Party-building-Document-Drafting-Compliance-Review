@@ -4,11 +4,20 @@ This is the fast, deterministic first pass of the compliance check —
 mirrors `frontend/src/api/mockContent.ts#mockCheckContent` so that the
 demo behaves consistently whether or not the backend is reachable.
 The LLM-based semantic second pass lives in `app/services/checker.py`.
+
+The actual rule data (banned terms / required sections / vague phrases)
+is stored in the database and maintained via `app/routers/rules.py`.
+The constants below are only used to seed the database on first run
+(see `app/seed.py`).
 """
 
-VAGUE_PHRASES = ["进一步加强", "不断提高", "狠抓落实", "持续发力"]
+from sqlalchemy.orm import Session
 
-REQUIRED_SECTIONS: dict[str, list[str]] = {
+from app.models import BannedTerm, RequiredSection, VaguePhrase
+
+DEFAULT_VAGUE_PHRASES = ["进一步加强", "不断提高", "狠抓落实", "持续发力"]
+
+DEFAULT_REQUIRED_SECTIONS: dict[str, list[str]] = {
     "annual_summary": ["主要工作", "存在的问题", "下一步工作计划"],
     "duty_report": ["履职", "廉洁自律", "存在不足", "努力方向"],
     "meeting_minutes": ["议题", "决议事项"],
@@ -16,7 +25,7 @@ REQUIRED_SECTIONS: dict[str, list[str]] = {
     "rectification_plan": ["整改措施"],
 }
 
-BANNED_TERMS = [
+DEFAULT_BANNED_TERMS = [
     ("二个维护", "应为「两个维护」", "政治术语"),
     ("四个自信心", "应为「四个自信」", "政治术语"),
 ]
@@ -34,29 +43,38 @@ def _issue(**kwargs) -> dict:
     return {"id": _next_id(), **kwargs}
 
 
-def run_rule_engine(material_type: str, content: str) -> list[dict]:
+def run_rule_engine(material_type: str, content: str, session: Session) -> list[dict]:
     issues: list[dict] = []
 
-    for term, suggestion, issue_type in BANNED_TERMS:
-        if term in content:
+    banned_terms = session.query(BannedTerm).all()
+    required_sections = (
+        session.query(RequiredSection)
+        .filter(RequiredSection.material_type == material_type)
+        .order_by(RequiredSection.sort_order)
+        .all()
+    )
+    vague_phrases = session.query(VaguePhrase).all()
+
+    for banned in banned_terms:
+        if banned.term in content:
             issues.append(
                 _issue(
                     severity="fatal",
-                    type=issue_type,
-                    description=f'文中出现"{term}"，属于政治表述错误',
-                    suggestion=suggestion,
-                    anchor_text=term,
+                    type=banned.category,
+                    description=f'文中出现"{banned.term}"，属于政治表述错误',
+                    suggestion=banned.suggestion,
+                    anchor_text=banned.term,
                 )
             )
 
-    for section in REQUIRED_SECTIONS.get(material_type, []):
-        if section not in content:
+    for section in required_sections:
+        if section.section_name not in content:
             issues.append(
                 _issue(
                     severity="fatal",
                     type="格式完整性",
-                    description=f'缺少必需部分："{section}"',
-                    suggestion=f'请补充"{section}"相关内容',
+                    description=f'缺少必需部分："{section.section_name}"',
+                    suggestion=f'请补充"{section.section_name}"相关内容',
                 )
             )
 
@@ -71,15 +89,15 @@ def run_rule_engine(material_type: str, content: str) -> list[dict]:
             )
         )
 
-    for phrase in VAGUE_PHRASES:
-        if phrase in content:
+    for vague in vague_phrases:
+        if vague.phrase in content:
             issues.append(
                 _issue(
                     severity="warning",
                     type="表述空泛",
-                    description=f'出现"{phrase}"等空泛表述，缺乏具体举措',
+                    description=f'出现"{vague.phrase}"等空泛表述，缺乏具体举措',
                     suggestion="建议替换为具体的做法、责任人和时间节点",
-                    anchor_text=phrase,
+                    anchor_text=vague.phrase,
                 )
             )
 

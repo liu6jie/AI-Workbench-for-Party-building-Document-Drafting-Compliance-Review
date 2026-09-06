@@ -1,4 +1,4 @@
-export const PRIMARY_COLOR = '#165DFF';
+export const PRIMARY_COLOR = '#B3212C';
 
 export const SEVERITY_COLOR: Record<'fatal' | 'warning' | 'good', string> = {
   fatal: '#F53F3F',

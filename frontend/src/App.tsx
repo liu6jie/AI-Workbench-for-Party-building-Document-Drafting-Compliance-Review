@@ -20,7 +20,10 @@ export default function App() {
       theme={{
         token: {
           colorPrimary: PRIMARY_COLOR,
-          borderRadius: 4,
+          colorLink: '#1D486F',
+          colorText: '#293548',
+          colorTextSecondary: '#6F7885',
+          borderRadius: 6,
         },
       }}
     >

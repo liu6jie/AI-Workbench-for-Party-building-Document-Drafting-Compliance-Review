@@ -5,6 +5,7 @@ import {
   DatePicker,
   Form,
   Input,
+  InputNumber,
   Select,
   Space,
   Typography,
@@ -199,16 +200,14 @@ export default function DynamicForm() {
           );
         })}
 
-        <Form.Item name="target_word_count" label="目标字数" initialValue="1200">
-          <Select
-            options={[
-              { label: '约 600 字', value: '600' },
-              { label: '约 1000 字', value: '1000' },
-              { label: '约 1500 字', value: '1500' },
-              { label: '约 2000 字', value: '2000' },
-              { label: '约 3000 字', value: '3000' },
-              { label: '不限字数', value: 'unlimited' },
-            ]}
+        <Form.Item name="target_word_count" label="目标字数" initialValue={1200}>
+          <InputNumber
+            style={{ width: 240 }}
+            min={100}
+            max={10000}
+            step={100}
+            addonAfter="字"
+            placeholder="留空表示不限字数"
           />
         </Form.Item>
 

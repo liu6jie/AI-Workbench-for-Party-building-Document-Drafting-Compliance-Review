@@ -60,3 +60,53 @@ class HistoryRecordOut(BaseModel):
     form_values: dict[str, Any] = Field(alias="formValues")
 
     model_config = ConfigDict(populate_by_name=True)
+
+
+class BannedTermIn(BaseModel):
+    term: str
+    suggestion: str
+    category: str = "政治术语"
+
+
+class BannedTermOut(BannedTermIn):
+    id: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class RequiredSectionIn(BaseModel):
+    material_type: str
+    section_name: str
+    sort_order: int = 0
+
+
+class RequiredSectionOut(RequiredSectionIn):
+    id: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class VaguePhraseIn(BaseModel):
+    phrase: str
+
+
+class VaguePhraseOut(VaguePhraseIn):
+    id: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class SystemSettingsOut(BaseModel):
+    model_name: str
+    temperature: str
+    max_tokens: str
+    semantic_check_enabled: str
+    unit_context_prompt: str
+
+
+class SystemSettingsIn(BaseModel):
+    model_name: Optional[str] = None
+    temperature: Optional[str] = None
+    max_tokens: Optional[str] = None
+    semantic_check_enabled: Optional[str] = None
+    unit_context_prompt: Optional[str] = None

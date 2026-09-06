@@ -4,6 +4,7 @@ import { Avatar, Dropdown, Layout, Menu, Typography, message } from 'antd';
 import {
   BookOutlined,
   EditOutlined,
+  FlagFilled,
   HistoryOutlined,
   LogoutOutlined,
   SafetyCertificateOutlined,
@@ -33,56 +34,54 @@ export default function MainLayout() {
   }, [location.pathname]);
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Header
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 24px',
-          background: '#fff',
-          borderBottom: '1px solid #f0f0f0',
-        }}
-      >
-        <Typography.Title level={4} style={{ margin: 0, color: '#165DFF' }}>
-          AI 党建材料智能起草与合规检查工作台
-        </Typography.Title>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-          <a onClick={() => navigate('/knowledge')} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <SearchOutlined /> 知识库检索
-          </a>
+    <Layout className="app-layout">
+      <Header className="app-header">
+        <div className="app-brand" aria-label="AI党建材料工作台">
+          <div className="brand-mark"><FlagFilled /></div>
+          <div>
+            <Typography.Title level={4} className="app-brand-title">AI 党建材料工作台</Typography.Title>
+            <div className="app-brand-subtitle">智能起草 · 合规检查 · 规范归档</div>
+          </div>
+        </div>
+        <div className="app-header-actions">
+          <button type="button" className="header-link" onClick={() => navigate('/knowledge')}>
+            <SearchOutlined />
+            <span>知识库检索</span>
+          </button>
           <Dropdown
             menu={{
               items: [{ key: 'logout', icon: <LogoutOutlined />, label: '退出登录' }],
               onClick: () => message.info('演示环境未接入登录态，暂不支持退出'),
             }}
           >
-            <span style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Avatar size="small" icon={<UserOutlined />} />
-              党建专员 · 张老师
-            </span>
+            <button type="button" className="user-entry">
+              <Avatar size={30} icon={<UserOutlined />} />
+              <span>党建专员 · 张老师</span>
+            </button>
           </Dropdown>
         </div>
       </Header>
       <Layout>
-        <Sider width={200} style={{ background: '#fff' }}>
+        <Sider width={224} className="app-sider">
+          <div className="sider-intro">
+            <div className="sider-intro-kicker">PARTY WORKBENCH</div>
+            <div className="sider-intro-title">组织工作管理</div>
+          </div>
           <Menu
             mode="inline"
             selectedKeys={[selectedKey]}
             items={MENU_ITEMS}
-            style={{ height: '100%', borderRight: 0 }}
+            className="app-menu"
           />
+          <div className="sider-footer">
+            <span className="footer-star">★</span>
+            <span>让党务工作更规范、更高效</span>
+          </div>
         </Sider>
-        <Layout style={{ padding: 24 }}>
-          <Content
-            style={{
-              background: '#fff',
-              padding: 24,
-              margin: 0,
-              minHeight: 280,
-              borderRadius: 8,
-            }}
-          >
+        <Layout className="main-panel">
+          <Content className="app-content">
+            <div className="content-cloud cloud-one" />
+            <div className="content-cloud cloud-two" />
             <Outlet />
           </Content>
         </Layout>

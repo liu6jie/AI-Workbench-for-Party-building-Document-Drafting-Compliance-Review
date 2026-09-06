@@ -2,10 +2,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.db import Base, engine
-from app.routers import materials
+from app.db import Base, SessionLocal, engine
+from app.routers import materials, rules
+from app.routers import settings as settings_router
+from app.seed import seed_defaults
 
 Base.metadata.create_all(bind=engine)
+
+with SessionLocal() as _seed_session:
+    seed_defaults(_seed_session)
 
 app = FastAPI(title="AI 党建材料智能起草与合规检查工作台")
 
@@ -19,6 +24,8 @@ app.add_middleware(
 )
 
 app.include_router(materials.router)
+app.include_router(rules.router)
+app.include_router(settings_router.router)
 
 
 @app.get("/health")

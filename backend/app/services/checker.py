@@ -10,6 +10,7 @@ import json
 from typing import Any
 
 from openai import OpenAI
+from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.rules.engine import run_rule_engine
@@ -35,15 +36,19 @@ SEMANTIC_SYSTEM_PROMPT = """你是一名党建材料合规审查专家。请审�
 如果没有发现问题，返回 {"issues": []}。"""
 
 
-def _run_semantic_check(content: str) -> list[dict[str, Any]]:
+def _run_semantic_check(content: str, session: Session) -> list[dict[str, Any]]:
+    if get_setting(session, "semantic_check_enabled").lower() != "true":
+        return []
     try:
+        model_name = get_setting(session, "model_name") or "deepseek-chat"
         response = _client.chat.completions.create(
-            model="deepseek-chat",
+            model=model_name,
             messages=[
                 {"role": "system", "content": SEMANTIC_SYSTEM_PROMPT},
                 {"role": "user", "content": content},
             ],
             temperature=0,
+            max_tokens=int(get_setting(session, "max_tokens") or "4000"),
             response_format={"type": "json_object"},
         )
         raw = response.choices[0].message.content or "{}"
@@ -73,9 +78,9 @@ def _run_semantic_check(content: str) -> list[dict[str, Any]]:
         return []
 
 
-def run_check(material_type: str, content: str) -> dict[str, Any]:
-    rule_issues = run_rule_engine(material_type, content)
-    semantic_issues = _run_semantic_check(content)
+def run_check(material_type: str, content: str, session: Session) -> dict[str, Any]:
+    rule_issues = run_rule_engine(material_type, content, session)
+    semantic_issues = _run_semantic_check(content, session)
 
     issues: list[dict[str, Any]] = []
     for idx, source_issue in enumerate(rule_issues + semantic_issues):
