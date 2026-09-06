@@ -416,3 +416,5 @@ const SEVERITY_COLOR = { fatal: "red", warning: "gold", good: "green" };
 // 用 Ant Design 的 <Tag color={...}> 和 <List> 渲染 issues 数组即可
 ```
 ##前端效果展示
+<img width="2594" height="1610" alt="image" src="https://github.com/user-attachments/assets/9fd6c81f-69f1-41e6-9550-29fa6533fcd6" />
+
